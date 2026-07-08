@@ -1,10 +1,12 @@
--- Final Fixed Tracker for Fish It
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local API_URL = "https://mtlxlyqmcpzzqnzzyyus.supabase.co/rest/v1/fish_it_inventory"
 local ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10bHhseXFtY3B6enFuenp5eXVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTU5MDksImV4cCI6MjA5OTA3MTkwOX0.2M02hdfHtD-Bw2OQdUbcJLoqLEeqIFT5oOkkFFfvoKc"
+
+-- Deteksi fungsi request bawaan executor mobile
+local sendReq = request or (http and http.request) or http_request
 
 local function getStat(folderName, statName)
     local folder = LocalPlayer:FindFirstChild(folderName)
@@ -27,19 +29,22 @@ local function sendInventory()
         ruby_gem = getStat("Save_Data", "Ruby")
     }
     
-    pcall(function()
-        request({
+    -- Mengirim langsung tanpa pcall pembungkus agar error asli terlihat di console jika gagal
+    if sendReq then
+        sendReq({
             Url = API_URL,
             Method = "POST",
             Headers = {
                 ["apikey"] = ANON_KEY,
                 ["Authorization"] = "Bearer " .. ANON_KEY,
                 ["Content-Type"] = "application/json",
-                ["Prefer"] = "resolution=merge-duplicates"
+                ["Prefer"] = "return=minimal"
             },
             Body = HttpService:JSONEncode(data)
         })
-    end)
+    else
+        warn("Executor tidak mendukung HTTP Request!")
+    end
 end
 
 task.spawn(sendInventory)
