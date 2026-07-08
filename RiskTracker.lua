@@ -7,47 +7,40 @@ local ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 local req = request or (http and http.request) or http_request
 
--- Mengambil fungsi pemanggil data internal dari script referensi Fish It
-local function getInternalInventory()
+-- Mengambil modul data save internal dari game Fish It
+local function getInventoryData()
     local success, save = pcall(function()
-        -- Menembak sistem Save_Data bawaan game Fish It menggunakan remote/modul jika tersedia
         return game:GetService("ReplicatedStorage").CloudSave.GetSave:InvokeServer()
     end)
     if success and type(save) == "table" then
         return save
     end
-    
-    -- Cadangan jika disimpan di save_data folder klien
-    local altSave = LocalPlayer:FindFirstChild("Save_Data")
-    if altSave then
-        return altSave
-    end
     return nil
 end
 
 local function sendInventory()
-    local inv = getInternalInventory()
+    local save = getInventoryData()
     
-    -- Ambil data nilai, jika tabel kosong atau gagal maka otomatis 0
-    local function val(itemName)
-        if not inv then return 0 end
-        if type(inv) == "table" then
-            return tonumber(inv[itemName]) or 0
-        else
-            local item = inv:FindFirstChild(itemName)
-            return item and tonumber(item.Value) or 0
+    local function val(key)
+        if not save then return 0 end
+        -- Mengecek apakah item ada di dalam sub-tabel Inventory atau tabel utama save
+        if save.Inventory and save.Inventory[key] then
+            return tonumber(save.Inventory[key]) or 0
+        elseif save[key] then
+            return tonumber(save[key]) or 0
         end
+        return 0
     end
 
     local data = {
         username = LocalPlayer.Name,
-        evolved_enchant = val("Evolved Enchant") + val("EvolvedEnchantStone"),
-        runic_enchant = val("Runic Enchant") + val("RunicEnchantStone"),
+        evolved_enchant = val("Evolved Enchant Stone"),
+        runic_enchant = val("Runic Enchant Stone"),
         secret_fish = val("Secret") or 0,
-        ghostfinn_rod = val("Ghostfinn Rod") or val("GhostfinnRod"),
-        element_rod = val("Element Rod") or val("ElementRod"),
-        diamond_rod = val("Diamond Rod") or val("DiamondRod"),
-        ruby_gem = val("Ruby") or val("RubyGemstone")
+        ghostfinn_rod = val("Ghostfinn Rod"),
+        element_rod = val("Element Rod"),
+        diamond_rod = val("Diamond Rod"),
+        ruby_gem = val("Ruby Gemstone")
     }
 
     if req then
