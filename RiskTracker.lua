@@ -1,28 +1,12 @@
--- Full Integrated Tracker for Fish It (Complete Version)
-local _0xA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local function _0xB(data)
-    data = string.gsub(data, '[^'.._0xA..'=]', '')
-    return (string.gsub(data, '.', function(x)
-        if (x == '=') then return '' end
-        local r, f = '', (_0xA:find(x) - 1)
-        for i = 6, 1, -1 do r = r .. (f % 2^i - f % 2^(i-1) > 0 and '1' or '0') end
-        return r;
-    end):gsub('%d%d%d%d%d%d%d%d', function(x)
-        local r = 0
-        for i = 1, 8 do r = r + (x:sub(i,i) == '1' and 2^(8-i) or 0) end
-        return string.char(r)
-    end))
-end
-
+-- Test Tracker Fish It (Direct Key Version)
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local SUPABASE_URL = _0xB("aHR0cHM6Ly9tdGx4bHlxbWNwenpxbnp6eXl1cy5zdXBhYmFzZS5jbw==")
-local SUPABASE_ANON_KEY = _0xB("ZXlKaGJHY2lPaUpTVXpVTklYTWlMQ0p0ZFhBaU9pSldaVlpmZEdsemN6bHlaVzV6Y0dGMWMyVWlMQ0pwWVhRaU9qRTNNRE16TnpRNE9EazVfZXhwT0p6RTNNRE16TnpRNE9EazVNMTkwT0gwc0luSnZiR1Z6Y0dGMWMyVWlPaUptYVdOb2FYUWlMQ0pwWVhRaU9qRTNNRFl6TXpRM016STVfZXhwT0p6RTNNRFl6TXpRM016STVNMTkwT0gwc0luVjVjR1Z5Ym1GdFpTSTZJbVZ1WTNKeWRYUnBiMjRpTENKdVlXMWxJanBiZXlKMWNtbG5hVzVvSWpvaVlYQnBMM1Z6YlhWeWFXNW5JanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlVpT2lKbWRYSm9hWEpsWTNSeWIyNHVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWVdsMGFXOXVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWVdsMGFXOXVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWTI5dWREMXphR1ZzYkhNaU9pSm1kV05vYVhKbFlM")
-local API_URL = SUPABASE_URL .. "/rest/v1/fish_it_inventory"
+-- Menggunakan URL dan API Key asli database kamu secara langsung
+local API_URL = "https://mtlxlyqmcpzzqnzzyyus.supabase.co/rest/v1/fish_it_inventory"
+local ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10bHhseXFtY3B6enFuenp5eXVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0OTU5MDksImV4cCI6MjA5OTA3MTkwOX0.2M02hdfHtD-Bw2OQdUbcJLoqLEeqIFT5oOkkFFfvoKc"
 
--- Fungsi mengambil nilai stat dari folder game
 local function getStat(folderName, statName)
     local folder = LocalPlayer:FindFirstChild(folderName)
     if folder then
@@ -33,7 +17,6 @@ local function getStat(folderName, statName)
 end
 
 local function sendInventory()
-    -- Mengambil data 100% mengikuti struktur folder asli game Fish It
     local data = {
         username = LocalPlayer.Name,
         evolved_enchant = getStat("Save_Data", "Evolved Enchant"),
@@ -45,25 +28,29 @@ local function sendInventory()
         ruby_gem = getStat("Save_Data", "Ruby")
     }
     
-    pcall(function()
-        request({
+    local success, result = pcall(function()
+        return request({
             Url = API_URL,
             Method = "POST",
             Headers = {
-                ["apikey"] = SUPABASE_ANON_KEY,
-                ["Authorization"] = "Bearer " .. SUPABASE_ANON_KEY,
+                ["apikey"] = ANON_KEY,
+                ["Authorization"] = "Bearer " .. ANON_KEY,
                 ["Content-Type"] = "application/json",
                 ["Prefer"] = "resolution=merge-duplicates"
             },
             Body = HttpService:JSONEncode(data)
         })
     end)
+    
+    if success then
+        print("Tracker: HTTP Request Berhasil Dikirim!")
+    else
+        warn("Tracker HTTP Error: " .. tostring(result))
+    end
 end
 
--- Menjalankan fungsi kirim saat script di-execute
 task.spawn(sendInventory)
 
--- Mengulang pengiriman otomatis setiap 60 detik
 while task.wait(60) do
     sendInventory()
 end
