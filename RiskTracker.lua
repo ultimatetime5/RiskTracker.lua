@@ -1,4 +1,4 @@
--- Full Tracker Integrated for Fish It
+-- Full Integrated Tracker for Fish It (Complete Version)
 local _0xA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 local function _0xB(data)
     data = string.gsub(data, '[^'.._0xA..'=]', '')
@@ -18,22 +18,22 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Database Supabase Kamu (Aman Terenkripsi)
 local SUPABASE_URL = _0xB("aHR0cHM6Ly9tdGx4bHlxbWNwenpxbnp6eXl1cy5zdXBhYmFzZS5jbw==")
 local SUPABASE_ANON_KEY = _0xB("ZXlKaGJHY2lPaUpTVXpVTklYTWlMQ0p0ZFhBaU9pSldaVlpmZEdsemN6bHlaVzV6Y0dGMWMyVWlMQ0pwWVhRaU9qRTNNRE16TnpRNE9EazVfZXhwT0p6RTNNRE16TnpRNE9EazVNMTkwT0gwc0luSnZiR1Z6Y0dGMWMyVWlPaUptYVdOb2FYUWlMQ0pwWVhRaU9qRTNNRFl6TXpRM016STVfZXhwT0p6RTNNRFl6TXpRM016STVNMTkwT0gwc0luVjVjR1Z5Ym1GdFpTSTZJbVZ1WTNKeWRYUnBiMjRpTENKdVlXMWxJanBiZXlKMWNtbG5hVzVvSWpvaVlYQnBMM1Z6YlhWeWFXNW5JanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlVpT2lKbWRYSm9hWEpsWTNSeWIyNHVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWVdsMGFXOXVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWVdsMGFXOXVJanVzZXlKMWNtbG5hVzVvY0hWeVlXSmhjMlUvWTI5dWREMXphR1ZzYkhNaU9pSm1kV05vYVhKbFlM")
 local API_URL = SUPABASE_URL .. "/rest/v1/fish_it_inventory"
 
--- Mengambil data berdasarkan path asli game Fish It (100% Data Referensi)
+-- Fungsi mengambil nilai stat dari folder game
 local function getStat(folderName, statName)
     local folder = LocalPlayer:FindFirstChild(folderName)
-    if folder and folder:FindFirstChild(statName) then
-        return folder[statName].Value
+    if folder then
+        local stat = folder:FindFirstChild(statName)
+        if stat then return tonumber(stat.Value) or 0 end
     end
     return 0
 end
 
 local function sendInventory()
-    -- Membaca data item sepenuhnya dari game
+    -- Mengambil data 100% mengikuti struktur folder asli game Fish It
     local data = {
         username = LocalPlayer.Name,
         evolved_enchant = getStat("Save_Data", "Evolved Enchant"),
@@ -60,8 +60,10 @@ local function sendInventory()
     end)
 end
 
--- Jalankan langsung dan ulangi otomatis setiap 60 detik
+-- Menjalankan fungsi kirim saat script di-execute
 task.spawn(sendInventory)
+
+-- Mengulang pengiriman otomatis setiap 60 detik
 while task.wait(60) do
     sendInventory()
 end
